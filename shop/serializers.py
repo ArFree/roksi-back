@@ -55,6 +55,7 @@ class ProductSerializer(serializers.ModelSerializer):
             "images",
         )
 
+
 class CartAPISerializer(serializers.Serializer):
     product_id = serializers.IntegerField()
     action = serializers.CharField()

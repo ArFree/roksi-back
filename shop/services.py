@@ -32,8 +32,8 @@ class Cart(metaclass=SingletonMeta):
         self.session.modified = True
 
     def add(
-            self,
-            product_id: str,
+        self,
+        product_id: str,
     ):
         """
         Add product to the cart or add one item to cart
@@ -41,10 +41,7 @@ class Cart(metaclass=SingletonMeta):
 
         product = get_object_or_404(Product, id=product_id)
         if product_id not in self.cart:
-            self.cart[product_id] = {
-                "quantity": 1,
-                "price": str(product.price)
-            }
+            self.cart[product_id] = {"quantity": 1, "price": str(product.price)}
         else:
             self.cart[product_id]["quantity"] += 1
         self.save()

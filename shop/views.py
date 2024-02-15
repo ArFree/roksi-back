@@ -13,7 +13,8 @@ from shop.models import Category, Product
 from shop.serializers import (
     CategorySerializer,
     ProductSerializer,
-    CartAPISerializer, AddRemoveFavouriteSerializer
+    CartAPISerializer,
+    AddRemoveFavouriteSerializer,
 )
 from shop.services import Cart
 
@@ -29,9 +30,8 @@ class ProductViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericVi
         Product.objects.select_related()
         .prefetch_related(
             "images",
-            "buying_with_it__buying_with_it__product_set",
-            "category__subcategories__products",
-        )
+            "category__subcategories",
+        ).select_related("category", "subcategory")
         .order_by("id")
     )
     serializer_class = ProductSerializer
@@ -60,6 +60,7 @@ class CartAPI(APIView):
     """
     Single API to handle cart operations
     """
+
     serializer_class = CartAPISerializer
 
     def get(self, request):
@@ -76,11 +77,19 @@ class CartAPI(APIView):
     @extend_schema(
         request=CartAPISerializer,
         parameters=[
-            OpenApiParameter(name="product_id", type=OpenApiTypes.INT, location=OpenApiParameter.QUERY,
-                             description="The ID of the product."),
-            OpenApiParameter(name="action", type=OpenApiTypes.STR, location=OpenApiParameter.QUERY,
-                             description="The action to perform on the cart.",
-                             enum=["add", "remove_one", "remove", "clear"]),
+            OpenApiParameter(
+                name="product_id",
+                type=OpenApiTypes.INT,
+                location=OpenApiParameter.QUERY,
+                description="The ID of the product.",
+            ),
+            OpenApiParameter(
+                name="action",
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+                description="The action to perform on the cart.",
+                enum=["add", "remove_one", "remove", "clear"],
+            ),
         ],
     )
     def post(self, request, **kwargs):
@@ -100,6 +109,8 @@ class CartAPI(APIView):
         elif action == "clear":
             cart.clear()
         else:
-            return Response({"message": "choose action"}, status=status.HTTP_204_NO_CONTENT)
+            return Response(
+                {"message": "choose action"}, status=status.HTTP_204_NO_CONTENT
+            )
 
         return Response({"message": "cart updated"}, status=status.HTTP_202_ACCEPTED)
