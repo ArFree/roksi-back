@@ -27,11 +27,3 @@ class UserManageView(generics.RetrieveUpdateAPIView):
         queryset = get_user_model().objects.all().prefetch_related("favorites")
 
 
-class OrderListView(generics.ListAPIView):
-    serializer_class = OrderItemListSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        return OrderItem.objects.filter(order__email=self.request.user.email).order_by(
-            "-order__created_at"
-        )
