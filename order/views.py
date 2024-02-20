@@ -1,6 +1,7 @@
 import stripe
 from django.db import transaction
 from django.http import HttpResponseRedirect
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import generics, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
