@@ -15,6 +15,7 @@ class Order(models.Model):
         CASH = "CASH"
 
     email = models.EmailField(max_length=255)
+    instagram = models.CharField(max_length=255, blank=True, null=True)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     phone_number = models.CharField(

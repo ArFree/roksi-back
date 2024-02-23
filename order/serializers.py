@@ -16,6 +16,7 @@ class OrderCreateSerializer(serializers.ModelSerializer):
             "email",
             "first_name",
             "last_name",
+            "instagram",
             "phone_number",
             "country",
             "city",

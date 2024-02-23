@@ -18,7 +18,7 @@ def send_email(order_id: int) -> None:
     message = MIMEMultipart("alternative")
     html_message = render_to_string(
         "email.html",
-        {"order": order, "oblast": settings.CODES_OF_COUNTRIES.get(order.country)}
+        {"order": order, "country": settings.CODES_OF_COUNTRIES.get(order.country)}
     )
     plain_message = strip_tags(html_message)
     message.attach(MIMEText(plain_message, "plain"))
