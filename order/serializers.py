@@ -20,7 +20,7 @@ class OrderCreateSerializer(serializers.ModelSerializer):
             "phone_number",
             "country",
             "city",
-            "payment_method"
+            "postal_code"
         )
 
     def validate_country(self, value):
@@ -52,4 +52,4 @@ class PaymentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Payment
-        fields = ("id", "status", "total", "order", "session_url")
+        fields = ("id", "status", "total", "order", "session_url", "created_at")

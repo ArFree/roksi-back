@@ -16,10 +16,10 @@
     {% endif %}
     <li><em>Country: </em> <b>{{ country }}</b></li>
     <li><em>City: </em> <b>{{ order.city }}</b></li>
-    <li><em>Payment method:</em> {{ order.payment_method }}</li>
-    {% if order.payment_method == "CARD" %}
-        <li><em>Status: </em> {{ order.payment.status }}</li>
+    {% if order.postal_code %}
+        <li><em>Postal code: </em> <b>{{ order.postal_code }}</b></li>
     {% endif %}
+    <li><em>Status: </em> {{ order.payment.status }}</li>
 </ul>
 <h3>Items:</h3>
 <ul>

@@ -9,11 +9,6 @@ from shop.models import Product
 
 
 class Order(models.Model):
-
-    class PaymentChoices(models.TextChoices):
-        CARD = "CARD"
-        CASH = "CASH"
-
     email = models.EmailField(max_length=255)
     instagram = models.CharField(max_length=255, blank=True, null=True)
     first_name = models.CharField(max_length=255)
@@ -34,9 +29,9 @@ class Order(models.Model):
     city = models.CharField(
         max_length=255, blank=True, null=True
     )
+    postal_code = models.CharField(max_length=64, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     total = models.DecimalField(max_digits=8, decimal_places=2)
-    payment_method = models.CharField(max_length=4, choices=PaymentChoices.choices)
 
     def __str__(self) -> str:
         return f"{self.email}, {self.created_at}"
@@ -77,3 +72,7 @@ class Payment(models.Model):
     order = models.OneToOneField("Order", on_delete=models.CASCADE)
     session_url = models.URLField(max_length=512, null=True, blank=True)
     session_id = models.CharField(max_length=255, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]

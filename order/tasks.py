@@ -2,12 +2,16 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+import stripe
 from celery import shared_task
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
-from order.models import Order
+from order.models import Order, Payment
+
+
+stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 @shared_task
@@ -32,3 +36,21 @@ def send_email(order_id: int) -> None:
     server.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
     server.sendmail(FROM, TO, message.as_string())
     server.close()
+
+
+def get_expired_sessions():
+    sessions = stripe.checkout.Session.list().data
+    return [
+        session.id
+        for session in sessions
+        if session.status == "expired" and session.payment_status == "unpaid"
+    ]
+
+
+@shared_task
+def mark_expired_payments():
+    expired_sessions = get_expired_sessions()
+    for payment in Payment.objects.all():
+        if payment.session_id in expired_sessions:
+            payment.status = "EXPIRED"
+            payment.save()

@@ -36,15 +36,11 @@ class OrderCreateView(generics.CreateAPIView):
                     quantity=cart.cart[product_id]["quantity"]
                 )
             cart.clear()
-            if order.payment_method == "CASH":
-                send_email.delay(order.id)
 
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
         order = Order.objects.get(id=response.data.get("id"))
-        if order.payment_method == "CARD":
-            return HttpResponseRedirect(redirect_to=create_payment(request, order))
-        return response
+        return HttpResponseRedirect(redirect_to=create_payment(request, order))
 
 
 class OrderListView(generics.ListAPIView):
@@ -79,11 +75,14 @@ class PaymentViewSet(
         payment = Payment.objects.get(id=pk)
         session = stripe.checkout.Session.retrieve(payment.session_id)
         if session.payment_status == "paid":
-            customer = stripe.Customer.retrieve(session.customer)
             payment.status = "PAID"
             payment.save()
             send_email(payment.order.id)
-            return Response(f"Thank you, {customer.name}!", status=200)
+            return Response(
+                f"Thank you! We will get in touch with you via {payment.order.email} "
+                f"or the instagram you provided as soon as possible!",
+                status=200
+            )
 
         return Response(f"Not yet, pay first: {session.url}", status=403)
 

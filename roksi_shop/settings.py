@@ -181,6 +181,7 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=2),  # for convenience while developing
     "REFRESH_TOKEN_LIFETIME": timedelta(days=3),
+    "AUTH_HEADER_NAME": "HTTP_AUTHORIZE",
 }
 
 SPECTACULAR_SETTINGS = {
@@ -220,15 +221,24 @@ EMAIL_HOST_PASSWORD = os.getenv(
 )  # app password preferably (my personal didn't work)
 
 CELERY_BROKER_URL = os.getenv("REDIS_URL")
+CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_BACKEND = "django-db"
 CELERY_TIMEZONE = "Europe/Kiev"
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+
 
 CELERY_BEAT_SCHEDULE = {
     "flush_expired_tokens": {
         "task": "user.tasks.flush_expired_tokens",
         "schedule": 86400,
-    }
+    },
+    "expired_payments_check": {
+        "task": "order.tasks.mark_expired_payments",
+        "schedule": 60,
+    },
 }
 
 CODES_OF_COUNTRIES = {
