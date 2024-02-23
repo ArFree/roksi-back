@@ -232,6 +232,8 @@ CELERY_BEAT_SCHEDULE = {
 }
 
 CODES_OF_COUNTRIES = {
+    "GB": "United Kingdom",
+    "UA": "Ukraine (Україна)",
     "AF": "Afghanistan",
     "AX": "Aland Islands",
     "AL": "Albania",
@@ -464,9 +466,7 @@ CODES_OF_COUNTRIES = {
     "TC": "Turks and Caicos Islands",
     "TV": "Tuvalu",
     "UG": "Uganda",
-    "UA": "Ukraine",
     "AE": "United Arab Emirates",
-    "GB": "United Kingdom",
     "UM": "United States Minor Outlying Islands",
     "US": "United States",
     "UY": "Uruguay",
