@@ -29,7 +29,6 @@ class Order(models.Model):
     city = models.CharField(
         max_length=255, blank=True, null=True
     )
-    postal_code = models.CharField(max_length=64, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     total = models.DecimalField(max_digits=8, decimal_places=2)
 

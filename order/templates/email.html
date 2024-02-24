@@ -16,9 +16,6 @@
     {% endif %}
     <li><em>Country: </em> <b>{{ country }}</b></li>
     <li><em>City: </em> <b>{{ order.city }}</b></li>
-    {% if order.postal_code %}
-        <li><em>Postal code: </em> <b>{{ order.postal_code }}</b></li>
-    {% endif %}
     <li><em>Status: </em> {{ order.payment.status }}</li>
 </ul>
 <h3>Items:</h3>

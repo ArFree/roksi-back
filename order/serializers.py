@@ -20,7 +20,6 @@ class OrderCreateSerializer(serializers.ModelSerializer):
             "phone_number",
             "country",
             "city",
-            "postal_code"
         )
 
     def validate_country(self, value):
