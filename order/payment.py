@@ -15,9 +15,7 @@ def create_payment(request, order):
     )
 
     price = int(order.total * 100)
-    success_url = request.build_absolute_uri(
-        reverse_lazy("order:payment-success", kwargs={"pk": payment.id})
-    )
+    success_url = "http://localhost:3000/success"
     cancel_url = request.build_absolute_uri(
         reverse_lazy("order:payment-cancel", kwargs={"pk": payment.id})
     )

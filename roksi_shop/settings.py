@@ -13,6 +13,7 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+from corsheaders.defaults import default_headers
 from dotenv import load_dotenv
 
 
@@ -208,6 +209,11 @@ CORS_ALLOWED_ORIGINS = [
 ]
 CORS_ALLOW_ALL_HEADERS = True
 CORS_ALLOW_CSRF_COOKIE = True
+
+CORS_ALLOW_HEADERS = (
+    *default_headers,
+    "authorize",
+)
 
 CART_SESSION_ID = "cart"
 
