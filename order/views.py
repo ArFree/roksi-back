@@ -40,7 +40,7 @@ class OrderCreateView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
         order = Order.objects.get(id=response.data.get("id"))
-        return HttpResponseRedirect(redirect_to=create_payment(request, order))
+        return Response(data={"link": create_payment(request, order)}, status=201)
 
 
 class OrderListView(generics.ListAPIView):
