@@ -1,31 +1,20 @@
 import stripe
 from django.conf import settings
-from django.urls import reverse_lazy
-
-from order.models import Payment
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
-def create_payment(request, order):
-
-    payment = Payment.objects.create(
-        order=order,
-        status="PENDING",
-    )
-
+def create_payment(order):
     price = int(order.total * 100)
-    success_url = "http://localhost:3000/success"
-    cancel_url = request.build_absolute_uri(
-        reverse_lazy("order:payment-cancel", kwargs={"pk": payment.id})
-    )
+    success_url = "http://localhost:3000/#/success/"
+    cancel_url = "http://localhost:3000/"
     session = stripe.checkout.Session.create(
         line_items=[
             {
                 "price_data": {
                     "currency": "usd",
                     "product_data": {
-                        "name": order.id,
+                        "name": f"Order {order.id}"
                     },
                     "unit_amount": price,
                 },
@@ -38,9 +27,7 @@ def create_payment(request, order):
         customer_creation="always",
     )
 
-    payment.session_id = session.id
-    payment.save()
-    payment.session_url = session.url
-    payment.save()
+    order.session_id = session.id
+    order.save()
 
     return session.url

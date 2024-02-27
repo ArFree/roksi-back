@@ -1,3 +1,5 @@
+import datetime
+import pytz
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -8,7 +10,7 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
-from order.models import Order, Payment
+from order.models import Order
 
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -17,6 +19,8 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 @shared_task
 def send_email(order_id: int) -> None:
     order = Order.objects.get(id=order_id)
+    order.is_paid = True
+    order.save()
     TO = [order.email, settings.EMAIL_HOST_USER]   # send notification to the owner
     FROM = "roksi4shop@gmail.com"
     message = MIMEMultipart("alternative")
@@ -38,19 +42,16 @@ def send_email(order_id: int) -> None:
     server.close()
 
 
-def get_expired_sessions():
-    sessions = stripe.checkout.Session.list().data
-    return [
-        session.id
-        for session in sessions
-        if session.status == "expired" and session.payment_status == "unpaid"
-    ]
-
-
 @shared_task
-def mark_expired_payments():
-    expired_sessions = get_expired_sessions()
-    for payment in Payment.objects.all():
-        if payment.session_id in expired_sessions:
-            payment.status = "EXPIRED"
-            payment.save()
+def check_for_paid_orders():
+    for order in Order.objects.prefetch_related("order_items"):
+        if order.is_paid:
+            continue
+        tz = pytz.timezone(settings.TIME_ZONE)
+        session = stripe.checkout.Session.retrieve(order.session_id)
+        order_lifetime = datetime.datetime.now(tz=tz) - order.created_at
+
+        if session.payment_status != "paid" and order_lifetime.seconds >= 900:
+            order.delete()
+        elif session.payment_status == "paid":
+            send_email.delay(order.id)

@@ -16,13 +16,12 @@
     {% endif %}
     <li><em>Country: </em> <b>{{ country }}</b></li>
     <li><em>City: </em> <b>{{ order.city }}</b></li>
-    <li><em>Status: </em> {{ order.payment.status }}</li>
 </ul>
 <h3>Items:</h3>
 <ul>
     {% for item in order.order_items.all %}
         <li style="font-size: larger">
-            <b>{{ item }}</b>, amount = {{ item.quantity }}, total = <b>{{ item.calculate_total }}</b>
+            <b>{{ item }}</b> || total = <b>{{ item.calculate_total }}</b>
             <br> <p>----------------</p>
         </li>
     {% endfor %}

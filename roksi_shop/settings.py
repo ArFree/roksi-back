@@ -180,8 +180,8 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(seconds=30),
-    "REFRESH_TOKEN_LIFETIME": timedelta(seconds=60),
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=12),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZE",
 }
 
@@ -240,9 +240,9 @@ CELERY_BEAT_SCHEDULE = {
         "task": "user.tasks.flush_expired_tokens",
         "schedule": 86400,
     },
-    "expired_payments_check": {
-        "task": "order.tasks.mark_expired_payments",
-        "schedule": 60,
+    "check_for_orders": {
+        "task": "order.tasks.check_for_paid_orders",
+        "schedule": 600,
     },
 }
 

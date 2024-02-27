@@ -2,7 +2,7 @@ from django.conf import settings
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from order.models import Order, OrderItem, Payment
+from order.models import Order, OrderItem
 
 
 class OrderCreateSerializer(serializers.ModelSerializer):
@@ -42,13 +42,3 @@ class OrderItemListSerializer(serializers.ModelSerializer):
             "quantity",
             "calculate_total"
         )
-
-
-class PaymentSerializer(serializers.ModelSerializer):
-    total = serializers.SlugRelatedField(
-        source="order", slug_field="total", read_only=True
-    )
-
-    class Meta:
-        model = Payment
-        fields = ("id", "status", "total", "order", "session_url", "created_at")

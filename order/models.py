@@ -30,6 +30,8 @@ class Order(models.Model):
         max_length=255, blank=True, null=True
     )
     created_at = models.DateTimeField(auto_now_add=True)
+    session_id = models.CharField(max_length=255, null=True, blank=True)
+    is_paid = models.BooleanField(default=False)
     total = models.DecimalField(max_digits=8, decimal_places=2)
 
     def __str__(self) -> str:
@@ -59,19 +61,3 @@ class OrderItem(models.Model):
 
     def __str__(self) -> str:
         return f"{self.product}, quantity = {self.quantity}"
-
-
-class Payment(models.Model):
-    class StatusChoices(models.TextChoices):
-        PAID = "PAID"
-        PENDING = "PENDING"
-        EXPIRED = "EXPIRED"
-
-    status = models.CharField(max_length=7, choices=StatusChoices.choices)
-    order = models.OneToOneField("Order", on_delete=models.CASCADE)
-    session_url = models.URLField(max_length=512, null=True, blank=True)
-    session_id = models.CharField(max_length=255, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ["-created_at"]
