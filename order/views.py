@@ -42,6 +42,9 @@ class OrderListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return OrderItem.objects.filter(order__email=self.request.user.email).order_by(
+        return OrderItem.objects.filter(
+            order__email=self.request.user.email,
+            order__is_paid=True,
+        ).order_by(
             "-order__created_at"
         )
