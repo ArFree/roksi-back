@@ -18,6 +18,9 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 
 @shared_task
 def send_email(order_id: int) -> None:
+    """
+    Sends order confirmation emails both to the customer and the shop owner.
+    """
     order = Order.objects.get(id=order_id)
     order.is_paid = True
     order.save()
@@ -44,6 +47,9 @@ def send_email(order_id: int) -> None:
 
 @shared_task
 def check_for_paid_orders():
+    """
+    Catches all paid orders and marks them as such. Unpaid ones (15 minutes after creation) are deleted.
+    """
     for order in Order.objects.prefetch_related("order_items"):
         if order.is_paid:
             continue

@@ -5,6 +5,9 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 def create_payment(order):
+    """
+    Creates a Stripe checkout session out of an order.
+    """
     price = int(order.total * 100)
     success_url = "http://localhost:3000/#/success/"
     cancel_url = "http://localhost:3000/"

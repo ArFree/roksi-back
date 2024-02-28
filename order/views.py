@@ -17,6 +17,9 @@ class OrderCreateView(generics.CreateAPIView):
     authentication_classes = []
 
     def perform_create(self, serializer):
+        """
+        Takes items from the cart and puts them into a new order
+        """
         with transaction.atomic():
             cart = Cart(self.request)
             if not list(cart.cart.keys()):
@@ -32,12 +35,18 @@ class OrderCreateView(generics.CreateAPIView):
             cart.clear()
 
     def create(self, request, *args, **kwargs):
+        """
+        Creates a stripe checkout session and returns its URL.
+        """
         response = super().create(request, *args, **kwargs)
         order = Order.objects.get(id=response.data.get("id"))
         return Response(data={"link": create_payment(order)}, status=201)
 
 
 class OrderListView(generics.ListAPIView):
+    """
+    Shows list or order items bought by a specific user (only paid orders)
+    """
     serializer_class = OrderItemListSerializer
     permission_classes = [IsAuthenticated]
 

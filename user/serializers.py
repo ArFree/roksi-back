@@ -60,6 +60,9 @@ class UserManageSerializer(serializers.ModelSerializer):
         read_only_fields = ("id", "email")
 
     def validate_country(self, value):
+        """
+        For easier integration with React. Accepts both keys and values of CODES_OF_COUNTRIES.
+        """
         country_dict = settings.CODES_OF_COUNTRIES
         if value in list(country_dict.keys()):
             return value
