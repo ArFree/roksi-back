@@ -3,7 +3,7 @@ DRF API for an online art shop.
 
 ## Features
 * JWT Authentication
-* Payment system Stripe
+* Payment system LiqPay
 * Email notifications
 * Session-based cart
 

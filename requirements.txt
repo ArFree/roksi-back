@@ -56,7 +56,6 @@ rpds-py==0.15.2
 s3transfer==0.10.0
 six==1.16.0
 sqlparse==0.4.4
-stripe==8.3.0
 tomli==2.0.1
 tornado==6.4
 typing_extensions==4.9.0

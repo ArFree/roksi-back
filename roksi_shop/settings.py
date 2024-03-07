@@ -22,6 +22,9 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+LIQPAY_PUBLIC_KEY = os.getenv("LIQPAY_PUBLIC_KEY")
+
+LIQPAY_PRIVATE_KEY = os.getenv("LIQPAY_PRIVATE_KEY")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -29,8 +32,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "django-insecure-_u4!2fl_tfkgxym2r^s-vd%3703isa!=n=w#dvy!sq)0c#i==h"
 
-STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
-STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -239,10 +240,6 @@ CELERY_BEAT_SCHEDULE = {
     "flush_expired_tokens": {
         "task": "user.tasks.flush_expired_tokens",
         "schedule": 86400,
-    },
-    "check_for_orders": {
-        "task": "order.tasks.check_for_paid_orders",
-        "schedule": 600,
     },
 }
 

@@ -9,6 +9,10 @@ from shop.models import Product
 
 
 class Order(models.Model):
+    class PaymentStatusChoices(models.TextChoices):
+        paid = "paid"
+        unpaid = "unpaid"
+
     email = models.EmailField(max_length=255)
     instagram = models.CharField(max_length=255, blank=True, null=True)
     first_name = models.CharField(max_length=255)
@@ -30,8 +34,7 @@ class Order(models.Model):
         max_length=255, blank=True, null=True
     )
     created_at = models.DateTimeField(auto_now_add=True)
-    session_id = models.CharField(max_length=255, null=True, blank=True)
-    is_paid = models.BooleanField(default=False)
+    status = models.CharField(max_length=6, choices=PaymentStatusChoices.choices, default="unpaid")
     total = models.DecimalField(max_digits=8, decimal_places=2)
 
     def __str__(self) -> str:

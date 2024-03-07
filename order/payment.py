@@ -1,36 +1,33 @@
-import stripe
 from django.conf import settings
+from django.shortcuts import get_object_or_404
+from django.urls import reverse_lazy
+from liqpay import LiqPay
 
-stripe.api_key = settings.STRIPE_SECRET_KEY
+from order.models import Order
 
 
-def create_payment(order):
+def create_payment(order_id: int, request):
     """
-    Creates a Stripe checkout session out of an order.
+    Creates a LiqPay checkout session out of an order.
     """
-    price = int(order.total * 100)
-    success_url = "http://localhost:3000/#/success/"
-    cancel_url = "http://localhost:3000/"
-    session = stripe.checkout.Session.create(
-        line_items=[
-            {
-                "price_data": {
-                    "currency": "usd",
-                    "product_data": {
-                        "name": f"Order {order.id}"
-                    },
-                    "unit_amount": price,
-                },
-                "quantity": 1,
-            }
-        ],
-        mode="payment",
-        success_url=success_url,
-        cancel_url=cancel_url,
-        customer_creation="always",
+    order = get_object_or_404(Order, id=order_id)
+    server_url = request.build_absolute_uri(
+        reverse_lazy("order:order-payment-callback", kwargs={"pk": order_id})
     )
-
-    order.session_id = session.id
-    order.save()
-
-    return session.url
+    liqpay = LiqPay(
+        public_key=settings.LIQPAY_PUBLIC_KEY,
+        private_key=settings.LIQPAY_PRIVATE_KEY
+    )
+    html = liqpay.cnb_form({
+        "action": "pay",
+        "amount": str(order.total),
+        "currency": "USD",
+        "description": "Roksi art",
+        "order_id": order.id,
+        "version": "3",
+        "server_url": server_url,
+        "rro_info": {
+            "delivery_emails": [order.email, settings.EMAIL_HOST_USER]
+        }
+    })
+    return html

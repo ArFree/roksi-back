@@ -4,16 +4,13 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-import stripe
 from celery import shared_task
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from liqpay import LiqPay
 
 from order.models import Order
-
-
-stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 @shared_task
@@ -22,8 +19,7 @@ def send_email(order_id: int) -> None:
     Sends order confirmation emails both to the customer and the shop owner.
     """
     order = Order.objects.get(id=order_id)
-    order.is_paid = True
-    order.save()
+    verify_order_status(order)
     TO = [order.email, settings.EMAIL_HOST_USER]   # send notification to the owner
     FROM = "roksi4shop@gmail.com"
     message = MIMEMultipart("alternative")
@@ -45,19 +41,19 @@ def send_email(order_id: int) -> None:
     server.close()
 
 
-@shared_task
-def check_for_paid_orders():
-    """
-    Catches all paid orders and marks them as such. Unpaid ones (15 minutes after creation) are deleted.
-    """
-    for order in Order.objects.prefetch_related("order_items"):
-        if order.is_paid:
-            continue
-        tz = pytz.timezone(settings.TIME_ZONE)
-        session = stripe.checkout.Session.retrieve(order.session_id)
-        order_lifetime = datetime.datetime.now(tz=tz) - order.created_at
-
-        if session.payment_status != "paid" and order_lifetime.seconds >= 900:
-            order.delete()
-        elif session.payment_status == "paid":
-            send_email.delay(order.id)
+def verify_order_status(order) -> None:
+    liqpay = LiqPay(
+        public_key=settings.LIQPAY_PUBLIC_KEY,
+        private_key=settings.LIQPAY_PRIVATE_KEY
+    )
+    response = liqpay.api(
+        "request", {
+            "action": "status",
+            "version": "3",
+            "order_id": order.id,
+        }
+    )
+    if response.get("status") == "success":
+        order.status = "paid"
+        order.save()
+        order.refresh_from_db()
