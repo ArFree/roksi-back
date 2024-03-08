@@ -1,7 +1,8 @@
+import requests
 from django.conf import settings
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
-from liqpay import LiqPay
+from liqpay.liqpay3 import LiqPay
 
 from order.models import Order
 
@@ -18,7 +19,9 @@ def create_payment(order_id: int, request):
         public_key=settings.LIQPAY_PUBLIC_KEY,
         private_key=settings.LIQPAY_PRIVATE_KEY
     )
-    html = liqpay.cnb_form({
+    params = {
+        "public_key": settings.LIQPAY_PUBLIC_KEY,
+        "private_key": settings.LIQPAY_PRIVATE_KEY,
         "action": "pay",
         "amount": str(order.total),
         "currency": "USD",
@@ -26,8 +29,6 @@ def create_payment(order_id: int, request):
         "order_id": order.id,
         "version": "3",
         "server_url": server_url,
-        "rro_info": {
-            "delivery_emails": [order.email, settings.EMAIL_HOST_USER]
-        }
-    })
-    return html
+    }
+    data, signature = liqpay.get_data_end_signature("cnb_form", params)
+    return {"data": data, "signature": signature}

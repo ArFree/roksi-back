@@ -1,6 +1,8 @@
+import requests
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from liqpay import LiqPay
 from rest_framework import viewsets, mixins
@@ -68,11 +70,18 @@ class OrderViewSet(viewsets.GenericViewSet,
         Creates a stripe checkout session and returns its URL.
         """
         response = super().create(request, *args, **kwargs)
-        html = create_payment(response.data.get("id"), request)
-        return Response(data=html)
+        payment_data = create_payment(response.data.get("id"), request)
+        payment_url = requests.post(
+            "https://www.liqpay.ua/api/3/checkout/",
+            data=payment_data
+        ).url
+        return Response(
+            data={"link": payment_url},
+            status=201
+        )
 
     @action(methods=["POST"], detail=True, url_path="payment-callback")
-    def payment_callback(self, request, pk = None):
+    def payment_callback(self, request, pk=None):
         order = get_object_or_404(Order, pk)
         liqpay = LiqPay(
             public_key=settings.LIQPAY_PUBLIC_KEY,

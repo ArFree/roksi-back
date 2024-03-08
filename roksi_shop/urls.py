@@ -25,8 +25,14 @@ from drf_spectacular.views import (
     SpectacularAPIView,
 )
 
+
+def trigger_error(request):
+    division_by_zero = 1 / 0
+
+
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("sentry-sdk/", trigger_error),
     path("api/", include("shop.urls", namespace="shop")),
     path("api/user/", include("user.urls", namespace="user")),
     path("api/orders/", include("order.urls", namespace="order")),

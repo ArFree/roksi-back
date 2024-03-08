@@ -1,5 +1,4 @@
-import datetime
-import pytz
+
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -9,8 +8,22 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from liqpay import LiqPay
+from celery import signals
+import sentry_sdk
+from sentry_sdk.integrations.celery import CeleryIntegration
+
 
 from order.models import Order
+
+
+@signals.celeryd_init.connect
+def init_sentry(**kwargs):
+    sentry_sdk.init(
+        dsn="https://fa95a365db234358b560cf87c02a749b@o4506813888462848.ingest.us.sentry.io/4506813888659456",
+        integrations=[CeleryIntegration(monitor_beat_tasks=True)],
+        environment="local.dev.grace",
+        release="v1.0",
+    )
 
 
 @shared_task
@@ -20,6 +33,7 @@ def send_email(order_id: int) -> None:
     """
     order = Order.objects.get(id=order_id)
     verify_order_status(order)
+
     TO = [order.email, settings.EMAIL_HOST_USER]   # send notification to the owner
     FROM = "roksi4shop@gmail.com"
     message = MIMEMultipart("alternative")
