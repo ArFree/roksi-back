@@ -10,8 +10,6 @@ RUN apt-get update && \
     apt-get install -y git
 
 COPY requirements.txt requirements.txt
-RUN python -m pip install --upgrade pip
-RUN pip install git+https://github.com/liqpay/sdk-python#egg=liqpay-python
 RUN pip install -r requirements.txt
 
 COPY . .

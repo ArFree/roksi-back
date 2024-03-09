@@ -1,9 +1,9 @@
 # Roksi Shop API
-DRF API for an online art shop.
+DRF API for an online art shop (DEPLOYED VERSION).
 
 ## Features
 * JWT Authentication
-* Payment system LiqPay
+* Payment system LiqPay (Currently disabled)
 * Email notifications
 * Session-based cart
 

@@ -35,7 +35,6 @@ jmespath==1.0.1
 jsonschema==4.20.0
 jsonschema-specifications==2023.11.2
 kombu==5.3.5
-liqpay-python @ git+https://github.com/liqpay/sdk-python@be76c77acafe321cacdad8cb585ea0eb28a87038
 mypy-extensions==1.0.0
 packaging==23.2
 pathspec==0.11.2

@@ -1,18 +1,9 @@
-import requests
-from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
-from liqpay import LiqPay
 from rest_framework import viewsets, mixins
-from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
-from rest_framework.renderers import StaticHTMLRenderer
-from rest_framework.response import Response
 
-from order.models import Order, OrderItem
-from order.payment import create_payment
+from order.models import OrderItem
 from order.permissions import OrdersPermission
 from order.serializers import OrderCreateSerializer, OrderItemListSerializer
 from order.tasks import send_email
@@ -32,7 +23,6 @@ class OrderViewSet(viewsets.GenericViewSet,
         if self.action == "list" and self.request.user.is_authenticated:
             return queryset.filter(
                 order__email=self.request.user.email,
-                order__is_paid=True,
             ).order_by(
                 "-order__created_at"
             )
@@ -64,32 +54,4 @@ class OrderViewSet(viewsets.GenericViewSet,
                     quantity=cart.cart[product_id]["quantity"]
                 )
             cart.clear()
-
-    def create(self, request, *args, **kwargs):
-        """
-        Creates a stripe checkout session and returns its URL.
-        """
-        response = super().create(request, *args, **kwargs)
-        payment_data = create_payment(response.data.get("id"), request)
-        payment_url = requests.post(
-            "https://www.liqpay.ua/api/3/checkout/",
-            data=payment_data
-        ).url
-        return Response(
-            data={"link": payment_url},
-            status=201
-        )
-
-    @action(methods=["POST"], detail=True, url_path="payment-callback")
-    def payment_callback(self, request, pk=None):
-        order = get_object_or_404(Order, pk)
-        liqpay = LiqPay(
-            public_key=settings.LIQPAY_PUBLIC_KEY,
-            private_key=settings.LIQPAY_PRIVATE_KEY
-        )
-        data = request.data.get("data")
-        signature = request.data.get("signature")
-        sign = liqpay.str_to_sign(settings.LIQPAY_PRIVATE_KEY + data + settings.LIQPAY_PRIVATE_KEY)
-        if sign == signature:
-            send_email.apply_async(args=(order.id,), countdown=60)
-        return Response()
+            send_email.delay(order.id)

@@ -29,10 +29,6 @@ sentry_sdk.init(
     profiles_sample_rate=1.0,
 )
 
-LIQPAY_PUBLIC_KEY = os.getenv("LIQPAY_PUBLIC_KEY")
-
-LIQPAY_PRIVATE_KEY = os.getenv("LIQPAY_PRIVATE_KEY")
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -189,7 +185,6 @@ STORAGES = {
         "BACKEND": "storages.backends.s3boto3.S3StaticStorage",
     },
 }
-
 
 
 # Default primary key field type
