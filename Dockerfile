@@ -1,29 +1,29 @@
-FROM python:3.10.4-slim
-LABEL maintainer="edlrian814@gmail.com"
+ARG PYTHON_VERSION=3.11-slim-bullseye
 
+FROM python:${PYTHON_VERSION}
+
+ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-WORKDIR app/
+# install psycopg2 dependencies.
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y git
+RUN mkdir -p /code
 
-COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt
+WORKDIR /code
 
-COPY . .
+COPY requirements.txt /tmp/requirements.txt
+RUN set -ex && \
+    pip install --upgrade pip && \
+    pip install -r /tmp/requirements.txt && \
+    rm -rf /root/.cache/
+COPY . /code
 
-RUN mkdir -p /vol/web/media
+RUN python manage.py collectstatic --noinput
 
-RUN adduser \
-    --disabled-password \
-    --no-create-home \
-    django-user
+EXPOSE 8000
 
-RUN chown -R django-user:django-user /vol/
-RUN chmod -R 755 /vol/web/
-RUN chgrp -R www-data /vol/web/
-RUN chmod -R g+w  /vol/web/
-
-USER django-user
+CMD ["gunicorn", "--bind", ":8000", "--workers", "1", "--threads", "8", "roksi_shop.wsgi"]

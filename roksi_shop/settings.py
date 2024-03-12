@@ -33,14 +33,16 @@ sentry_sdk.init(
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-_u4!2fl_tfkgxym2r^s-vd%3703isa!=n=w#dvy!sq)0c#i==h"
-
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+APP_NAME = os.getenv("FLY_APP_NAME")
+
 ALLOWED_HOSTS = [
     "localhost",
+    f"{APP_NAME}.fly.dev",
     "127.0.0.1",
     "0.0.0.0",
 ]
@@ -225,11 +227,13 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8000",
     "http://127.0.0.1:3000",
     "http://127.0.0.1:3001",
-    # f"https://{APP_NAME}.fly.dev",
+    f"https://{APP_NAME}.fly.dev",
     # os.getenv("FRONTEND_ORIGIN", "https://cherwood-frontend.fly.dev"),
 ]
 CORS_ALLOW_ALL_HEADERS = True
 CORS_ALLOW_CSRF_COOKIE = True
+
+CSRF_TRUSTED_ORIGINS = [f"https://{APP_NAME}.fly.dev",]
 
 CORS_ALLOW_HEADERS = (
     *default_headers,
