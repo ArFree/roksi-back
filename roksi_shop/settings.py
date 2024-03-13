@@ -36,7 +36,7 @@ sentry_sdk.init(
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 APP_NAME = os.getenv("FLY_APP_NAME")
 
@@ -200,6 +200,14 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle"
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "500/day",
+        "user": "1000/day"
+    }
 }
 
 SIMPLE_JWT = {
@@ -228,7 +236,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://127.0.0.1:3001",
     f"https://{APP_NAME}.fly.dev",
-    # os.getenv("FRONTEND_ORIGIN", "https://cherwood-frontend.fly.dev"),
+    os.getenv("FRONTEND_ORIGIN"),
 ]
 CORS_ALLOW_ALL_HEADERS = True
 CORS_ALLOW_CSRF_COOKIE = True

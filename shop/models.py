@@ -11,14 +11,9 @@ def file_path(instance, filename, suffix, folder) -> str:
     return os.path.join(f"uploads/images/{folder}", filename)
 
 
-def category_image_file_path(instance, filename) -> str:
-    return file_path(instance, filename, instance.name, "categories")
-
-
 class Category(models.Model):
     name = models.CharField(max_length=255, unique=True)
     name_eng = models.CharField(max_length=255, unique=True)
-    image = models.ImageField(null=True, upload_to=category_image_file_path)
 
     class Meta:
         ordering = ["name"]
@@ -28,14 +23,9 @@ class Category(models.Model):
         return self.name
 
 
-def subcategory_image_file_path(instance, filename) -> str:
-    return file_path(instance, filename, instance.name, "subcategories")
-
-
 class Subcategory(models.Model):
     name = models.CharField(max_length=255, unique=True)
     name_eng = models.CharField(max_length=255, unique=True)
-    image = models.ImageField(null=True, upload_to=subcategory_image_file_path)
     category = models.ForeignKey(
         "Category", on_delete=models.CASCADE, related_name="subcategories"
     )

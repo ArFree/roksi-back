@@ -25,12 +25,7 @@ class Migration(migrations.Migration):
                 ),
                 ("name", models.CharField(max_length=255, unique=True)),
                 ("name_eng", models.CharField(max_length=255, unique=True)),
-                (
-                    "image",
-                    models.ImageField(
-                        null=True, upload_to=shop.models.category_image_file_path
-                    ),
-                ),
+
             ],
             options={
                 "verbose_name_plural": "categories",
@@ -91,12 +86,7 @@ class Migration(migrations.Migration):
                 ),
                 ("name", models.CharField(max_length=255, unique=True)),
                 ("name_eng", models.CharField(max_length=255, unique=True)),
-                (
-                    "image",
-                    models.ImageField(
-                        null=True, upload_to=shop.models.subcategory_image_file_path
-                    ),
-                ),
+
                 (
                     "category",
                     models.ForeignKey(
