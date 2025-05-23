@@ -24,7 +24,7 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 sentry_sdk.init(
-    dsn="https://fa95a365db234358b560cf87c02a749b@o4506813888462848.ingest.us.sentry.io/4506813888659456",
+    dsn="https://32a685f5dd389df8c5223772ac49b96a@o4509347098132480.ingest.de.sentry.io/4509347104882768",
     traces_sample_rate=1.0,
     profiles_sample_rate=1.0,
 )
@@ -38,15 +38,9 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-APP_NAME = os.getenv("FLY_APP_NAME")
+APP_NAME = os.getenv("APP_NAME")
 
-ALLOWED_HOSTS = [
-    "localhost",
-    f"{APP_NAME}.fly.dev",
-    "127.0.0.1",
-    "0.0.0.0",
-]
-
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
 # Application definition
 
@@ -167,26 +161,27 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_ROOT = BASE_DIR / "staticfiles"
-STATIC_URL = "static/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "/vol/web/media")
-MEDIA_URL = "/media/"
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, "mediafiles")
 
 
-AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
-AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
-AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
-AWS_S3_FILE_OVERWRITE = False
-AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
-
-STORAGES = {
-    "default": {
-        "BACKEND": "storages.backends.s3boto3.S3StaticStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "storages.backends.s3boto3.S3StaticStorage",
-    },
-}
+# AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+# AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+# AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
+# AWS_S3_FILE_OVERWRITE = False
+# AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
+#
+# STORAGES = {
+#     "default": {
+#         "BACKEND": "storages.backends.s3boto3.S3StaticStorage",
+#     },
+#     "staticfiles": {
+#         "BACKEND": "storages.backends.s3boto3.S3StaticStorage",
+#     },
+# }
 
 
 # Default primary key field type
@@ -230,18 +225,20 @@ SPECTACULAR_SETTINGS = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3001",
-    "http://localhost:3000",
-    "http://127.0.0.1:8000",
-    "http://127.0.0.1:3000",
-    "http://127.0.0.1:3001",
-    f"https://{APP_NAME}.fly.dev",
-    os.getenv("FRONTEND_ORIGIN"),
+    f"https://{host}" for host in os.getenv("ALLOWED_HOSTS", "localhost").split(",")
 ]
+CORS_ALLOWED_ORIGINS.append(os.getenv("FRONTEND_ORIGIN", "http://localhost:3000"))
 CORS_ALLOW_ALL_HEADERS = True
 CORS_ALLOW_CSRF_COOKIE = True
 
-CSRF_TRUSTED_ORIGINS = [f"https://{APP_NAME}.fly.dev",]
+# Add allowed local origins
+if DEBUG:
+    CORS_ALLOWED_ORIGINS.extend([
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ])
+
+CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in os.getenv("ALLOWED_HOSTS", "localhost").split(",")]
 
 CORS_ALLOW_HEADERS = (
     *default_headers,

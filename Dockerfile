@@ -1,29 +1,31 @@
-ARG PYTHON_VERSION=3.11-slim-bullseye
-
-FROM python:${PYTHON_VERSION}
+# Backend Dockerfile
+FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-# install psycopg2 dependencies.
+# Install dependencies
 RUN apt-get update && apt-get install -y \
     libpq-dev \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
-RUN mkdir -p /code
-
+# Create app directory
 WORKDIR /code
 
-COPY requirements.txt /tmp/requirements.txt
-RUN set -ex && \
-    pip install --upgrade pip && \
-    pip install -r /tmp/requirements.txt && \
-    rm -rf /root/.cache/
-COPY . /code
+# Install Python dependencies
+COPY requirements.txt /code/
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt
 
-RUN python manage.py collectstatic --noinput
+# Copy project code
+COPY . /code/
+
+# Create directories for media and static files
+RUN mkdir -p /code/mediafiles /code/staticfiles
+
+# Add wait-for-db command
+COPY ./manage.py /code/
+RUN chmod +x /code/manage.py
 
 EXPOSE 8000
-
-CMD ["gunicorn", "--bind", ":8000", "--workers", "1", "--threads", "8", "roksi_shop.wsgi"]
